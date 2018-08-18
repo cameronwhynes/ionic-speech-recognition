@@ -1,6 +1,10 @@
 import { Component } from "@angular/core";
 import { IonicPage, NavController, NavParams, Platform } from "ionic-angular";
-import { SpeechRecognition } from "@ionic-native/speech-recognition";
+import {
+  SpeechRecognition,
+  SpeechRecognitionListeningOptionsAndroid,
+  SpeechRecognitionListeningOptionsIOS
+} from "@ionic-native/speech-recognition";
 import { Observable } from "rxjs/Observable";
 
 /**
@@ -16,13 +20,18 @@ import { Observable } from "rxjs/Observable";
   templateUrl: "home.html"
 })
 export class HomePage {
-  recording: false;
-  recordedHistory: Array<string>;
-
-  options = {
-    language: "en",
+  speechHistory: Array<string> = [];
+  
+  iosOptions: SpeechRecognitionListeningOptionsIOS = {
+    language: "en-US",
     matches: 1,
-    //String prompt,      // Android only
+    showPartial: false
+  };
+
+  androidOptions: SpeechRecognitionListeningOptionsAndroid = {
+    language: "en-US",
+    matches: 1,
+    prompt: "Speak into your device",      // Android only
     //Boolean showPopup,  // Android only
     showPartial: false
   };
@@ -33,9 +42,6 @@ export class HomePage {
     private speech: SpeechRecognition,
     private platform: Platform
   ) {
-
-    this.recordedHistory = new Array<string>();
-
     platform
       .ready()
       .then(source => {
@@ -47,51 +53,60 @@ export class HomePage {
   }
 
   listenForSpeech(): void {
-    this.speech.startListening().subscribe(
+
+    let speechOptions = {};
+    if (this.platform.is('android')) {
+      speechOptions = this.androidOptions;
+    }
+    else if (this.platform.is('ios'))
+    {
+      speechOptions = this.iosOptions;
+    }
+
+    this.speech.startListening(speechOptions).subscribe(
       data => {
-        if (data.length > 0){
-          this.recordedHistory.push(data[0]);
+        if (data.length > 0) {
+          this.speechHistory.push(data[0]);
         }
         console.log(data);
-    }, error => {
-      console.error(error);
-    });
+      },
+      error => {
+        console.error(error);
+      }
+    );
   }
 
-  async getSupportedLanguages():Promise<Array<string>> {
+  async getSupportedLanguages(): Promise<Array<string>> {
     try {
       const languages = await this.speech.getSupportedLanguages();
       console.log(languages);
       return languages;
-    }
-    catch(e){
-      console.error(e)
+    } catch (e) {
+      console.error(e);
     }
   }
 
-  async hasPermission():Promise<boolean>{
+  async hasPermission(): Promise<boolean> {
     try {
       const hasPermission = this.speech.hasPermission();
       console.log(hasPermission);
       return hasPermission;
-    }
-    catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
-  async getPermission():Promise<void>{
+  async getPermission(): Promise<void> {
     try {
       const permission = this.speech.requestPermission();
       console.log(permission);
       return permission;
-    }
-    catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
-  async isSpeechSupported():Promise<boolean> {
+  async isSpeechSupported(): Promise<boolean> {
     const isAvailable = await this.speech.isRecognitionAvailable();
     console.log(isAvailable);
     return isAvailable;

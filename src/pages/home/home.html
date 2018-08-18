@@ -14,12 +14,19 @@
 
 
 <ion-content padding>
-  <button ion-button (click)="isSpeechSupported()" >Is Speech Supported?</button>
-  <button ion-button (click)="getPermission()" >Get Permission</button>
-  <button ion-button (click)="hasPermission()" >Has Permission</button>
-  <button ion-button (click)="getSupportedLanguages()" >Get Supported Languages</button>
-  <button ion-button (click)="listenForSpeech()" >Listen For Speech</button>
+  <button ion-button (click)="isSpeechSupported()">Is Speech Supported?</button>
+  <button ion-button (click)="getPermission()">Get Permission</button>
+  <button ion-button (click)="hasPermission()">Has Permission</button>
+  <button ion-button (click)="getSupportedLanguages()">Get Supported Languages</button>
+  <button ion-button (click)="listenForSpeech()">Listen For Speech</button>
 
-  <p *ngFor="let speech of recordedHistory">" {{speech}} "</p>
-  
+  <ion-card>
+    <ion-card-header>
+      Speech
+    </ion-card-header>
+    <ion-card-content *ngFor="let speech of speechHistory">
+      <p class="speech">"{{speech}}"</p>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
